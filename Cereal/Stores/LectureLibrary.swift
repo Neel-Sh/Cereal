@@ -9,7 +9,7 @@ final class LectureLibrary {
     private(set) var isStarting = false
     private(set) var isStopping = false
     private(set) var elapsed: TimeInterval = 0
-    private(set) var microphoneLevel: Float = 0
+    private(set) var waveformLevels: [Float] = []
     private(set) var generatingIDs: Set<UUID> = []
     private(set) var canRetrySaving = false
     private(set) var isRecovering = false
@@ -30,7 +30,7 @@ final class LectureLibrary {
 
     private let storage: LectureStorage
     private let recorder = MicrophoneRecorder()
-    private let onlineRecorder = OnlineLectureRecorder()
+    private let meetingRecorder = MeetingRecorder()
     private let transcriber = LectureTranscriber()
     private let intelligence = LectureIntelligence()
     private var meterTimer: Timer?
@@ -38,9 +38,10 @@ final class LectureLibrary {
     private var recordingStartedAt: Date?
     private var pausedAt: Date?
     private var pausedDuration: TimeInterval = 0
-    private var activeCaptureMode: CaptureMode = .microphone
+    private(set) var activeCaptureMode: CaptureMode = .microphone
 
-    var canPause: Bool { isRecording && activeCaptureMode == .microphone && !isStopping }
+    var canPause: Bool { isRecording && !isStopping }
+    var isBusy: Bool { isRecording || isStarting || isStopping || canRetrySaving || isRecovering }
 
     init(storage: LectureStorage? = nil) {
         self.storage = storage ?? LectureStorage()
@@ -64,8 +65,7 @@ final class LectureLibrary {
                 if let id = draft.recordingID, !lectures.contains(where: { $0.id == id }) {
                     if FileManager.default.fileExists(atPath: self.storage.audioURL(for: id).path) {
                         recover(draft, id: id)
-                    } else if draft.captureMode == .online,
-                              FileManager.default.fileExists(atPath: self.storage.temporaryCaptureURL(for: id).path) {
+                    } else if draft.captureMode == .online, self.storage.hasSpeakerTracks(for: id) {
                         recordingID = id
                         recordingStartedAt = draft.startedAt
                         activeCaptureMode = .online
@@ -90,11 +90,15 @@ final class LectureLibrary {
 
         do {
             let id = UUID()
-            let feed = LiveAudioFeed()
+            let sources: [(speaker: Speaker?, feed: LiveAudioFeed)]
             if captureMode == .online {
-                try await onlineRecorder.start(at: storage.audioURL(for: id), temporaryURL: storage.temporaryCaptureURL(for: id), feed: feed)
+                sources = [(.me, LiveAudioFeed()), (.them, LiveAudioFeed())]
+                try await meetingRecorder.start(microphoneURL: storage.trackURL(for: id, speaker: .me),
+                                                systemURL: storage.trackURL(for: id, speaker: .them),
+                                                microphoneFeed: sources[0].feed, systemFeed: sources[1].feed)
             } else {
-                try await recorder.start(at: storage.audioURL(for: id), feed: feed)
+                sources = [(nil, LiveAudioFeed())]
+                try await recorder.start(at: storage.audioURL(for: id), feed: sources[0].feed)
             }
             activeCaptureMode = captureMode
             recordingID = id
@@ -104,10 +108,11 @@ final class LectureLibrary {
             isPaused = false
             persistDraft()
             elapsed = 0
+            waveformLevels = []
             isRecording = true
             showRecorder = true
             liveTranscriber.reset()
-            Task { await liveTranscriber.start(feed: feed) }
+            Task { await liveTranscriber.start(sources: sources) }
             meterTimer?.invalidate()
             meterTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
                 guard let self else { return }
@@ -128,7 +133,7 @@ final class LectureLibrary {
         guard canPause else { return }
         if isPaused {
             do {
-                try recorder.resume()
+                if activeCaptureMode == .online { try meetingRecorder.resume() } else { try recorder.resume() }
                 if let pausedAt { pausedDuration += Date().timeIntervalSince(pausedAt) }
                 pausedAt = nil
                 isPaused = false
@@ -136,7 +141,7 @@ final class LectureLibrary {
                 errorMessage = "Recording could not resume: \(error.localizedDescription)"
             }
         } else {
-            recorder.pause()
+            if activeCaptureMode == .online { meetingRecorder.pause() } else { recorder.pause() }
             pausedAt = .now
             isPaused = true
         }
@@ -155,11 +160,18 @@ final class LectureLibrary {
         await liveTranscriber.stop()
         let duration: TimeInterval
         do {
-            duration = activeCaptureMode == .online ? try await onlineRecorder.stop() : recorder.stop()
+            if activeCaptureMode == .online {
+                meetingRecorder.stop()
+                duration = try await MeetingRecorder.mix(microphoneURL: storage.trackURL(for: id, speaker: .me),
+                                                         systemURL: storage.trackURL(for: id, speaker: .them),
+                                                         to: storage.audioURL(for: id))
+            } else {
+                duration = recorder.stop()
+            }
         } catch {
             isStopping = false
             isRecording = false
-            canRetrySaving = activeCaptureMode == .online && FileManager.default.fileExists(atPath: storage.temporaryCaptureURL(for: id).path)
+            canRetrySaving = activeCaptureMode == .online && storage.hasSpeakerTracks(for: id)
             errorMessage = "Could not finish recording: \(error.localizedDescription)"
             return
         }
@@ -168,7 +180,7 @@ final class LectureLibrary {
         isPaused = false
         pausedAt = nil
         canRetrySaving = false
-        microphoneLevel = 0
+        waveformLevels = []
         elapsed = 0
         recordingID = nil
         recordingStartedAt = nil
@@ -236,6 +248,25 @@ final class LectureLibrary {
     func applyCalendarEvent(_ event: CalendarEvent) {
         draftTitle = event.title
         persistDraft()
+    }
+
+    /// Starts a computer-audio recording with the Meeting template, named after the calendar event
+    /// or the calling app unless the user already typed a title.
+    func startCallRecording(appName: String?) async {
+        guard !isBusy else { return }
+        calendar.refresh()
+        captureMode = .online
+        draftTemplate = .meeting
+        if draftTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            if let event = calendar.currentEvent {
+                draftTitle = event.title
+            } else if let appName {
+                draftTitle = "\(appName) call"
+            }
+        }
+        showRecorder = true
+        persistDraft()
+        await startRecording()
     }
 
     func chat(for key: String) -> [ChatExchange] { chats[key] ?? [] }
@@ -369,7 +400,7 @@ final class LectureLibrary {
     private func refreshMeter() {
         let now = pausedAt ?? Date()
         elapsed = recordingStartedAt.map { now.timeIntervalSince($0) - pausedDuration } ?? 0
-        microphoneLevel = activeCaptureMode == .online ? 0 : recorder.level
+        waveformLevels = activeCaptureMode == .online ? meetingRecorder.levels : recorder.levels
     }
 
     private func update(_ id: UUID, change: (inout Lecture) -> Void) {
@@ -386,7 +417,10 @@ final class LectureLibrary {
 
     private func transcribe(id: UUID) async {
         do {
-            let segments = try await transcriber.transcribe(storage.audioURL(for: id))
+            let segments = storage.hasSpeakerTracks(for: id)
+                ? try await transcriber.transcribeCall(microphone: storage.trackURL(for: id, speaker: .me),
+                                                       system: storage.trackURL(for: id, speaker: .them))
+                : try await transcriber.transcribe(storage.audioURL(for: id))
             update(id) {
                 $0.transcriptSegments = segments
                 $0.transcript = segments.map(\.text).joined(separator: " ")
@@ -406,8 +440,9 @@ final class LectureLibrary {
     private func recoverOnline(_ draft: LectureDraft, id: UUID) async {
         defer { isRecovering = false }
         do {
-            try await OnlineLectureRecorder.extractAudio(
-                from: storage.temporaryCaptureURL(for: id), to: storage.audioURL(for: id))
+            _ = try await MeetingRecorder.mix(microphoneURL: storage.trackURL(for: id, speaker: .me),
+                                              systemURL: storage.trackURL(for: id, speaker: .them),
+                                              to: storage.audioURL(for: id))
             var currentDraft = draft
             currentDraft.title = draftTitle
             currentDraft.notes = draftNotes

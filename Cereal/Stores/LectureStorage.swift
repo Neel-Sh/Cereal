@@ -24,9 +24,14 @@ struct LectureStorage {
             .appendingPathExtension("m4a")
     }
 
-    func temporaryCaptureURL(for id: UUID) -> URL {
+    /// Separate microphone ("me") and computer audio ("them") tracks kept for call recordings.
+    func trackURL(for id: UUID, speaker: Speaker) -> URL {
         root.appendingPathComponent("Recordings", isDirectory: true)
-            .appendingPathComponent(id.uuidString + ".capture.mp4")
+            .appendingPathComponent("\(id.uuidString).\(speaker == .me ? "mic" : "system").m4a")
+    }
+
+    func hasSpeakerTracks(for id: UUID) -> Bool {
+        FileManager.default.fileExists(atPath: trackURL(for: id, speaker: .them).path)
     }
 
     func load() throws -> [Lecture] {
@@ -60,6 +65,8 @@ struct LectureStorage {
 
     func deleteAudio(for id: UUID) {
         try? FileManager.default.removeItem(at: audioURL(for: id))
+        try? FileManager.default.removeItem(at: trackURL(for: id, speaker: .me))
+        try? FileManager.default.removeItem(at: trackURL(for: id, speaker: .them))
     }
 }
 

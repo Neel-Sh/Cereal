@@ -79,7 +79,7 @@ enum LectureExport {
             if lecture.transcriptSegments.isEmpty {
                 lines.append(lecture.transcript)
             } else {
-                lines += lecture.transcriptSegments.map { "[\($0.start.formattedDuration)] \($0.text)" }
+                lines += lecture.transcriptSegments.map { "[\($0.start.formattedDuration)] \($0.labeledText)" }
             }
         }
         return lines.joined(separator: "\n")

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>Milk inside the bowl</title>
+  <circle cx="512" cy="550" r="251" fill="#FAF7EF"/>
+  <path d="M 351 387 A 230 230 0 0 1 674 386" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" opacity="0.8"/>
+</svg>

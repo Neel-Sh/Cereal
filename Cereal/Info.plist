@@ -21,12 +21,10 @@
     <key>LSMinimumSystemVersion</key>
     <string>$(MACOSX_DEPLOYMENT_TARGET)</string>
     <key>NSMicrophoneUsageDescription</key>
-    <string>Cereal records lectures using your microphone.</string>
+    <string>Cereal records lectures and calls using your microphone.</string>
     <key>NSCalendarsFullAccessUsageDescription</key>
     <string>Cereal names new notes after the class or meeting happening on your calendar.</string>
-    <key>NSScreenCaptureUsageDescription</key>
-    <string>Cereal captures computer audio for online lectures when you choose that source.</string>
     <key>NSAudioCaptureUsageDescription</key>
-    <string>Cereal captures computer audio for online lectures when you choose that source.</string>
+    <string>Cereal records the other side of calls and online lectures from your computer’s audio.</string>
 </dict>
 </plist>

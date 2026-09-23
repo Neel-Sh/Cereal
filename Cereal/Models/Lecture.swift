@@ -83,6 +83,24 @@ struct TranscriptSegment: Codable, Hashable {
     let start: TimeInterval
     let end: TimeInterval
     let text: String
+    var speaker: Speaker? = nil
+
+    /// Text prefixed with the speaker label, for exports and model prompts.
+    var labeledText: String {
+        speaker.map { "\($0.title): \(text)" } ?? text
+    }
+}
+
+/// Which side of a call a passage came from: your microphone or the computer's audio.
+enum Speaker: String, Codable, Hashable {
+    case me, them
+
+    var title: String {
+        switch self {
+        case .me: "Me"
+        case .them: "Them"
+        }
+    }
 }
 
 struct EnhancedNoteBlock: Identifiable, Codable, Hashable {

@@ -53,6 +53,7 @@ struct RecorderView: View {
                 Task { await DebugSnapshot.feedLiveFile(into: library.liveTranscriber) }
             }
             guard scene.contains("rec-") else { return }
+            if scene.contains("online") { library.captureMode = .online }
             Task {
                 await library.startRecording()
                 showingLiveTranscript = scene.contains("live")
@@ -63,7 +64,7 @@ struct RecorderView: View {
                     library.togglePause()
                 }
                 if scene.contains("stop") {
-                    try? await Task.sleep(for: .seconds(4))
+                    try? await Task.sleep(for: .seconds(DebugSnapshot.environment["CEREAL_REC_SECONDS"].flatMap(Double.init) ?? 4))
                     library.stopRecording()
                 }
             }
@@ -102,89 +103,83 @@ struct RecorderView: View {
 
     private var controls: some View {
         GlassEffectContainer(spacing: 10) {
-            HStack(spacing: 10) {
-                HStack(spacing: 12) {
-                    if library.isRecording {
-                        RecordingWaveform(level: library.microphoneLevel, tint: library.isPaused ? .secondary : .red)
-                    } else if library.canRetrySaving {
-                        Button("Retry saving recording") { library.retrySaving() }
-                            .buttonStyle(.glassProminent)
+            if isIdle {
+                startButton
+            } else {
+                HStack(spacing: 10) {
+                    HStack(spacing: 12) {
+                        if library.isRecording {
+                            RecordingWaveform(levels: library.waveformLevels,
+                                              isPaused: library.isPaused,
+                                              tint: .red)
+                        } else if library.canRetrySaving {
+                            Button("Retry saving recording") { library.retrySaving() }
+                                .buttonStyle(.glassProminent)
+                                .disabled(library.isStopping)
+                        }
+                        if let statusText {
+                            Text(statusText)
+                                .font(.system(size: 13, weight: .medium))
+                                .monospacedDigit()
+                                .foregroundStyle(.secondary)
+                                .contentTransition(.numericText())
+                        }
+
+                        if library.canPause {
+                            Button {
+                                library.togglePause()
+                            } label: {
+                                Image(systemName: library.isPaused ? "play.fill" : "pause.fill")
+                                    .font(.system(size: 13, weight: .bold))
+                                    .frame(width: 36, height: 36)
+                                    .contentShape(Circle())
+                            }
+                            .buttonStyle(.plain)
+                            .glassEffect(.regular.interactive(), in: .circle)
+                            .accessibilityLabel(library.isPaused ? "Resume recording" : "Pause recording")
+                            .help(library.isPaused ? "Resume (⌘⇧P)" : "Pause (⌘⇧P)")
+                            .keyboardShortcut("p", modifiers: [.command, .shift])
+                        }
+
+                        if library.isRecording {
+                            Button {
+                                library.stopRecording()
+                            } label: {
+                                Image(systemName: "stop.fill")
+                                    .font(.system(size: 13, weight: .bold))
+                                    .foregroundStyle(.white)
+                                    .frame(width: 36, height: 36)
+                                    .background(.red, in: Circle())
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Stop and save recording")
+                            .help("Stop and save (⌘Space)")
                             .disabled(library.isStopping)
-                    }
-                    if let statusText {
-                        Text(statusText)
-                            .font(.system(size: 13, weight: .medium))
-                            .monospacedDigit()
-                            .foregroundStyle(.secondary)
-                            .contentTransition(.numericText())
-                    }
-
-                    if library.canPause {
-                        Button {
-                            library.togglePause()
-                        } label: {
-                            Image(systemName: library.isPaused ? "play.fill" : "pause.fill")
-                                .font(.system(size: 13, weight: .bold))
-                                .frame(width: 36, height: 36)
-                                .contentShape(Circle())
+                            .keyboardShortcut(.space, modifiers: [.command])
+                        } else if !library.canRetrySaving {
+                            startButton
                         }
-                        .buttonStyle(.plain)
-                        .glassEffect(.regular.interactive(), in: .circle)
-                        .accessibilityLabel(library.isPaused ? "Resume recording" : "Pause recording")
-                        .help(library.isPaused ? "Resume (⌘⇧P)" : "Pause (⌘⇧P)")
-                        .keyboardShortcut("p", modifiers: [.command, .shift])
                     }
+                    .padding(.leading, 18)
+                    .padding(.trailing, 5)
+                    .frame(height: 46)
+                    .glassEffect(.regular.interactive(), in: .capsule)
 
                     if library.isRecording {
                         Button {
-                            library.stopRecording()
+                            showingLiveTranscript.toggle()
                         } label: {
-                            Image(systemName: "stop.fill")
-                                .font(.system(size: 13, weight: .bold))
-                                .foregroundStyle(.white)
-                                .frame(width: 36, height: 36)
-                                .background(.red, in: Circle())
+                            Label("Live", systemImage: "captions.bubble")
+                                .font(.system(size: 13, weight: .medium))
+                                .padding(.horizontal, 16)
+                                .frame(height: 46)
+                                .contentShape(Capsule())
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel("Stop and save recording")
-                        .help("Stop and save (⌘Space)")
-                        .disabled(library.isStopping)
-                        .keyboardShortcut(.space, modifiers: [.command])
-                    } else if !library.canRetrySaving {
-                        Button {
-                            Task { await library.startRecording() }
-                        } label: {
-                            Label("Start Recording", systemImage: "record.circle")
-                                .padding(.horizontal, 6)
-                        }
-                        .buttonStyle(.glassProminent)
-                        .buttonBorderShape(.capsule)
-                        .tint(.red)
-                        .accessibilityLabel("Start recording")
-                        .help("Start recording (⌘Space)")
-                        .disabled(library.isStarting || library.isRecovering)
-                        .keyboardShortcut(.space, modifiers: [.command])
+                        .glassEffect(.regular.interactive(), in: .capsule)
+                        .help(showingLiveTranscript ? "Hide live transcript" : "Show live transcript")
+                        .keyboardShortcut("t", modifiers: [.command, .shift])
                     }
-                }
-                .padding(.leading, isIdle ? 5 : 18)
-                .padding(.trailing, 5)
-                .frame(height: 46)
-                .glassEffect(.regular.interactive(), in: .capsule)
-
-                if library.isRecording {
-                    Button {
-                        showingLiveTranscript.toggle()
-                    } label: {
-                        Label("Live", systemImage: "captions.bubble")
-                            .font(.system(size: 13, weight: .medium))
-                            .padding(.horizontal, 16)
-                            .frame(height: 46)
-                            .contentShape(Capsule())
-                    }
-                    .buttonStyle(.plain)
-                    .glassEffect(.regular.interactive(), in: .capsule)
-                    .help(showingLiveTranscript ? "Hide live transcript" : "Show live transcript")
-                    .keyboardShortcut("t", modifiers: [.command, .shift])
                 }
             }
         }
@@ -192,6 +187,22 @@ struct RecorderView: View {
         .padding(.top, 8)
         .animation(.snappy, value: library.isRecording)
         .animation(.snappy, value: library.isPaused)
+    }
+
+    private var startButton: some View {
+        Button {
+            Task { await library.startRecording() }
+        } label: {
+            Label("Start Recording", systemImage: "record.circle")
+                .padding(.horizontal, 6)
+        }
+        .buttonStyle(.glassProminent)
+        .buttonBorderShape(.capsule)
+        .tint(.red)
+        .accessibilityLabel("Start recording")
+        .help("Start recording (⌘Space)")
+        .disabled(library.isStarting || library.isRecovering)
+        .keyboardShortcut(.space, modifiers: [.command])
     }
 
     private var statusText: String? {
@@ -252,12 +263,16 @@ private struct LiveTranscriptPanel: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
                         if transcriber.hasText {
-                            let separator = transcriber.finalizedText.isEmpty || transcriber.volatileText.isEmpty ? "" : " "
-                            Text("\(transcriber.finalizedText)\(separator)\(Text(transcriber.volatileText).foregroundStyle(.secondary))")
-                                .font(.system(size: 14))
-                                .lineSpacing(5)
-                                .textSelection(.enabled)
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                            VStack(alignment: .leading, spacing: 12) {
+                                ForEach(transcriber.lines) { line in
+                                    LiveLineView(speaker: line.speaker, text: Text(line.text))
+                                }
+                                ForEach(pendingSpeakers, id: \.self) { speaker in
+                                    LiveLineView(speaker: speaker,
+                                                 text: Text(transcriber.volatileText[speaker] ?? "").foregroundStyle(.secondary))
+                                }
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         } else {
                             Text(transcriber.isListening ? "Listening…" : "Starting on-device transcription…")
                                 .font(.system(size: 14))
@@ -269,7 +284,7 @@ private struct LiveTranscriptPanel: View {
                     .padding(.bottom, 20)
                 }
                 .onChange(of: transcriber.volatileText) { _, _ in proxy.scrollTo("end", anchor: .bottom) }
-                .onChange(of: transcriber.finalizedText) { _, _ in proxy.scrollTo("end", anchor: .bottom) }
+                .onChange(of: transcriber.lines.last?.text) { _, _ in proxy.scrollTo("end", anchor: .bottom) }
             }
 
             Text("A timestamped transcript is made after you stop.")
@@ -278,5 +293,36 @@ private struct LiveTranscriptPanel: View {
                 .padding(.horizontal, 22)
                 .padding(.bottom, 14)
         }
+    }
+
+    private var pendingSpeakers: [Speaker?] {
+        [Speaker?.none, .me, .them].filter { !(transcriber.volatileText[$0] ?? "").isEmpty }
+    }
+}
+
+private struct LiveLineView: View {
+    let speaker: Speaker?
+    let text: Text
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            if let speaker {
+                SpeakerLabel(speaker: speaker)
+            }
+            text
+                .font(.system(size: 14))
+                .lineSpacing(5)
+                .textSelection(.enabled)
+        }
+    }
+}
+
+struct SpeakerLabel: View {
+    let speaker: Speaker
+
+    var body: some View {
+        Text(speaker.title)
+            .font(.system(size: 11, weight: .semibold))
+            .foregroundStyle(speaker == .me ? Color.accentColor : .orange)
     }
 }

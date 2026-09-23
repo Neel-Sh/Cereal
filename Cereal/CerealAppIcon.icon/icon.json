@@ -2,13 +2,13 @@
   "fill-specializations" : [
     {
       "value" : {
-        "solid" : "srgb:0.09412,0.09400,0.09400,1.00000"
+        "solid" : "srgb:1.00000,1.00000,1.00000,1.00000"
       }
     },
     {
       "appearance" : "dark",
       "value" : {
-        "solid" : "extended-srgb:0.05500,0.05500,0.05500,1.00000"
+        "solid" : "display-p3:0.07797,0.07797,0.07797,1.00000"
       }
     }
   ],
@@ -16,37 +16,55 @@
     {
       "layers" : [
         {
-          "image-name" : "02-audio-bars.svg",
-          "name" : "Audio bars"
+          "image-name" : "03-cereal.svg",
+          "name" : "Cereal"
         }
       ],
-      "name" : "Audio bars",
+      "name" : "Cereal",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.25
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : false,
+        "value" : 0
+      }
+    },
+    {
+      "layers" : [
+        {
+          "image-name" : "02-milk.svg",
+          "name" : "Milk"
+        }
+      ],
+      "name" : "Milk",
       "shadow" : {
         "kind" : "none",
         "opacity" : 0.5
       },
       "specular" : true,
       "translucency" : {
-        "enabled" : true,
-        "value" : 0.08
+        "enabled" : false,
+        "value" : 0
       }
     },
     {
       "layers" : [
         {
-          "image-name" : "01-c-mark.svg",
-          "name" : "C mark"
+          "image-name" : "01-bowl.svg",
+          "name" : "Bowl"
         }
       ],
-      "name" : "C mark",
+      "name" : "Bowl",
       "shadow" : {
         "kind" : "neutral",
-        "opacity" : 0.18
+        "opacity" : 0.35
       },
       "specular" : true,
       "translucency" : {
         "enabled" : true,
-        "value" : 0.08
+        "value" : 0.1
       }
     }
   ],

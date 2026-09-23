@@ -1,44 +1,33 @@
 import SwiftUI
 
-/// A single flowing line that responds to the microphone level.
+/// A compact history of measured audio energy, with the newest sound at the right edge.
 struct RecordingWaveform: View {
-    let level: Float
+    let levels: [Float]
+    var isPaused = false
     var tint: Color = .red
 
+    private let barCount = 24
+    private let barWidth: CGFloat = 2
+    private let barSpacing: CGFloat = 1.5
+    private let waveformHeight: CGFloat = 24
+
     var body: some View {
-        WaveformLine(amplitude: CGFloat(max(0.12, min(level, 1))))
-            .stroke(tint, style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
-            .frame(width: 54, height: 23)
-            .animation(.easeOut(duration: 0.12), value: level)
-            .accessibilityHidden(true)
-    }
-}
-
-private struct WaveformLine: Shape {
-    var amplitude: CGFloat
-
-    var animatableData: CGFloat {
-        get { amplitude }
-        set { amplitude = newValue }
-    }
-
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        let center = rect.midY
-        let height = 2.5 + amplitude * (rect.height * 0.42)
-
-        for step in 0...80 {
-            let progress = CGFloat(step) / 80
-            let envelope = pow(max(0, sin(.pi * progress)), 1.3)
-            let wave = sin(progress * .pi * 4.5)
-            let point = CGPoint(x: rect.minX + rect.width * progress,
-                                y: center - wave * envelope * height)
-            if step == 0 {
-                path.move(to: point)
-            } else {
-                path.addLine(to: point)
+        Canvas { context, size in
+            for index in 0..<barCount {
+                let levelIndex = index - (barCount - levels.count)
+                let level = levelIndex >= 0 ? CGFloat(levels[levelIndex]) : 0
+                let barHeight = max(2, min(size.height, 2 + level * (size.height - 2)))
+                let rect = CGRect(x: CGFloat(index) * (barWidth + barSpacing),
+                                  y: (size.height - barHeight) / 2,
+                                  width: barWidth,
+                                  height: barHeight)
+                let path = Path(roundedRect: rect, cornerRadius: barWidth / 2)
+                let opacity = isPaused ? 0.4 : (levelIndex < 0 ? 0.22 : 0.55 + 0.45 * Double(index) / Double(barCount - 1))
+                context.fill(path, with: .color(tint.opacity(opacity)))
             }
         }
-        return path
+        .frame(width: CGFloat(barCount) * (barWidth + barSpacing) - barSpacing,
+               height: waveformHeight)
+        .accessibilityHidden(true)
     }
 }

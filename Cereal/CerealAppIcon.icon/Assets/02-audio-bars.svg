@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
-  <title>Cereal audio bars</title>
-  <g fill="#FFFFFF">
-    <rect x="418" y="436" width="58" height="152" rx="29"/>
-    <rect x="516" y="379" width="58" height="266" rx="29"/>
-    <rect x="614" y="418" width="58" height="188" rx="29"/>
-  </g>
-</svg>

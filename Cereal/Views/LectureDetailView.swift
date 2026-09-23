@@ -155,7 +155,7 @@ struct LectureDetailView: View {
                 Button("Copy Transcript", systemImage: "text.quote") {
                     LectureExport.copyToPasteboard(lecture.transcriptSegments.isEmpty
                         ? lecture.transcript
-                        : lecture.transcriptSegments.map { "[\($0.start.formattedDuration)] \($0.text)" }.joined(separator: "\n"))
+                        : lecture.transcriptSegments.map { "[\($0.start.formattedDuration)] \($0.labeledText)" }.joined(separator: "\n"))
                 }
                 .disabled(lecture.transcript.isEmpty)
                 ShareLink(item: LectureExport.notesText(lecture), subject: Text(lecture.displayTitle)) {
@@ -799,11 +799,17 @@ private struct TranscriptPanel: View {
                                                 .font(.caption.monospacedDigit())
                                                 .foregroundStyle(.secondary)
                                                 .frame(width: 44, alignment: .leading)
-                                            Text(segment.text)
-                                                .font(.system(size: 14))
-                                                .lineSpacing(4)
-                                                .multilineTextAlignment(.leading)
-                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                            VStack(alignment: .leading, spacing: 3) {
+                                                if let speaker = segment.speaker,
+                                                   index == 0 || lecture.transcriptSegments[index - 1].speaker != speaker || visibleIndices.first == index {
+                                                    SpeakerLabel(speaker: speaker)
+                                                }
+                                                Text(segment.text)
+                                                    .font(.system(size: 14))
+                                                    .lineSpacing(4)
+                                                    .multilineTextAlignment(.leading)
+                                            }
+                                            .frame(maxWidth: .infinity, alignment: .leading)
                                         }
                                         .padding(8)
                                         .contentShape(Rectangle())

@@ -122,8 +122,9 @@ struct LectureIntelligence {
                 Each point must cite a supplied passage index. Make useful study outputs, including concepts, definitions,
                 examples, at least one flashcard, and at least one practice quiz question when the material supports them.
                 Only list action items that the speaker explicitly assigned or announced.
+                \(lecture.transcriptSegments.contains { $0.speaker != nil } ? "Passages labeled \"Me\" were spoken by the note taker; \"Them\" is the other people on the call. Say who owns each action item." : "")
                 """)
-            let passageText = chunk.map { "[\($0.index)] \($0.segment.text)" }.joined(separator: "\n")
+            let passageText = chunk.map { "[\($0.index)] \($0.segment.labeledText)" }.joined(separator: "\n")
             let roughNotes = String(lecture.notes.prefix(1800))
             let response = try await session.respond(
                 to: "Lecture: \(lecture.title)\nStudent's rough notes: \(roughNotes)\nPart \(number + 1) of \(chunks.count).\nTranscript passages:\n\(passageText)",
@@ -271,7 +272,7 @@ struct LectureIntelligence {
                                           lectureTitle: lecture.title,
                                           segmentIndex: entry.index,
                                           start: entry.segment.start,
-                                          text: entry.segment.text)
+                                          text: entry.segment.labeledText)
                 scored.append((source, score, lecture.recordedAt))
             }
         }

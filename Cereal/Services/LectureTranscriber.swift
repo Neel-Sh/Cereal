@@ -4,7 +4,34 @@ import Foundation
 import Speech
 
 struct LectureTranscriber {
-    func transcribe(_ url: URL) async throws -> [TranscriptSegment] {
+    /// Transcribes a call's microphone and computer-audio tracks and interleaves them as "Me" and "Them".
+    func transcribeCall(microphone: URL, system: URL) async throws -> [TranscriptSegment] {
+        let them = try await transcribe(system, speaker: .them)
+        let me = FileManager.default.fileExists(atPath: microphone.path)
+            ? try await transcribe(microphone, speaker: .me) : []
+        return Self.merge(me: me, them: them)
+    }
+
+    /// Without headphones the microphone also hears the other side, so drop "Me" passages that
+    /// mostly repeat words from an overlapping "Them" passage.
+    static func merge(me: [TranscriptSegment], them: [TranscriptSegment]) -> [TranscriptSegment] {
+        func words(_ text: String) -> Set<String> {
+            Set(text.lowercased().split { !$0.isLetter && !$0.isNumber }.map(String.init))
+        }
+        let theirWords = them.map { words($0.text) }
+        let mine = me.filter { segment in
+            let spoken = words(segment.text)
+            guard !spoken.isEmpty else { return false }
+            return !them.indices.contains { index in
+                let other = them[index]
+                guard other.start < segment.end + 2, other.end > segment.start - 2 else { return false }
+                return Double(spoken.intersection(theirWords[index]).count) / Double(spoken.count) >= 0.6
+            }
+        }
+        return (mine + them).sorted { $0.start < $1.start }
+    }
+
+    func transcribe(_ url: URL, speaker: Speaker? = nil) async throws -> [TranscriptSegment] {
         guard SpeechTranscriber.isAvailable,
               let locale = await SpeechTranscriber.supportedLocale(equivalentTo: .current) else {
             throw TranscriptionError.unsupportedLanguage
@@ -31,14 +58,14 @@ struct LectureTranscriber {
             } else {
                 await analyzer.cancelAndFinishNow()
             }
-            return groupIntoPassages(try await transcript.sorted { $0.start < $1.start })
+            return groupIntoPassages(try await transcript.sorted { $0.start < $1.start }, speaker: speaker)
         } catch {
             await analyzer.cancelAndFinishNow()
             throw error
         }
     }
 
-    private func groupIntoPassages(_ fragments: [TranscriptSegment]) -> [TranscriptSegment] {
+    private func groupIntoPassages(_ fragments: [TranscriptSegment], speaker: Speaker?) -> [TranscriptSegment] {
         var passages: [TranscriptSegment] = []
         var start: TimeInterval?
         var end: TimeInterval = 0
@@ -46,7 +73,7 @@ struct LectureTranscriber {
 
         func flush() {
             guard let start, !words.isEmpty else { return }
-            passages.append(TranscriptSegment(start: start, end: end, text: words.joined(separator: " ")))
+            passages.append(TranscriptSegment(start: start, end: end, text: words.joined(separator: " "), speaker: speaker))
             words.removeAll()
         }
 

@@ -15,11 +15,26 @@ enum DebugSnapshot {
         guard let path = environment["CEREAL_SNAPSHOT"] else { return }
         let delay = environment["CEREAL_SNAPSHOT_DELAY"].flatMap(Double.init) ?? 3.5
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-            guard let window = NSApp.windows.first(where: { $0.isVisible && $0.contentView != nil }) else { exit(1) }
+            let wantsPanel = scene.contains("callprompt") || scene.contains("callend")
+            guard let window = NSApp.windows.first(where: {
+                $0.isVisible && $0.contentView != nil && (wantsPanel ? $0 is NSPanel : $0.canBecomeMain)
+            }) else { exit(1) }
             capture(window, to: URL(fileURLWithPath: path))
             exit(0)
         }
     }
+
+    /// Shows the call prompt with a sample app so it can be captured without a real call.
+    static func showCallPromptIfNeeded(_ calls: CallCoordinator) {
+        let app = MicrophoneUser(bundleID: "com.apple.FaceTime", name: "FaceTime")
+        if scene.contains("callprompt") {
+            calls.showStartPrompt(for: app, eventTitle: scene.contains("event") ? "Weekly design sync" : nil)
+        } else if scene.contains("callend") {
+            calls.showEndPrompt(for: app)
+        }
+        if scene.contains("settings") {
+            NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+        }    }
 
     /// Streams CEREAL_LIVE_FILE through the live transcription pipeline at roughly real-time pace.
     static func feedLiveFile(into transcriber: LiveTranscriber) async {

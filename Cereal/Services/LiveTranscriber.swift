@@ -7,79 +7,99 @@ import Speech
 /// The saved recording is still transcribed again afterwards for timestamped, higher-quality text.
 @MainActor @Observable
 final class LiveTranscriber {
-    private(set) var finalizedText = ""
-    private(set) var volatileText = ""
+    /// Finalized passages in the order they were heard. Consecutive text from one speaker is joined.
+    private(set) var lines: [LiveLine] = []
+    /// In-progress text per source; a nil speaker means a single unlabeled source.
+    private(set) var volatileText: [Speaker?: String] = [:]
     private(set) var isListening = false
-    private var analyzer: SpeechAnalyzer?
-    private var resultsTask: Task<Void, Never>?
-    private var feed: LiveAudioFeed?
+    private var sessions: [(analyzer: SpeechAnalyzer, feed: LiveAudioFeed)] = []
+    private var resultsTasks: [Task<Void, Never>] = []
     private var generation = 0
 
-    var hasText: Bool { !finalizedText.isEmpty || !volatileText.isEmpty }
+    var hasText: Bool { !lines.isEmpty || volatileText.values.contains { !$0.isEmpty } }
+    var isLabeled: Bool { lines.contains { $0.speaker != nil } || volatileText.keys.contains { $0 != nil } }
 
     func start(feed: LiveAudioFeed) async {
+        await start(sources: [(nil, feed)])
+    }
+
+    func start(sources: [(speaker: Speaker?, feed: LiveAudioFeed)]) async {
         await stop()
         let session = generation
-        finalizedText = ""
-        volatileText = ""
+        lines = []
+        volatileText = [:]
         guard SpeechTranscriber.isAvailable,
               let locale = await SpeechTranscriber.supportedLocale(equivalentTo: .current) else { return }
-        let module = SpeechTranscriber(locale: locale, preset: .progressiveTranscription)
-        do {
-            if let download = try await AssetInventory.assetInstallationRequest(supporting: [module]) {
-                try await download.downloadAndInstall()
-            }
-            guard let format = await SpeechAnalyzer.bestAvailableAudioFormat(compatibleWith: [module]),
-                  session == generation else { return }
-            let (stream, continuation) = AsyncStream.makeStream(of: AnalyzerInput.self)
-            let analyzer = SpeechAnalyzer(modules: [module])
-            try await analyzer.start(inputSequence: stream)
-            guard session == generation else {
-                continuation.finish()
-                await analyzer.cancelAndFinishNow()
-                return
-            }
-            self.analyzer = analyzer
-            self.feed = feed
-            isListening = true
-            resultsTask = Task { [weak self] in
-                do {
-                    for try await result in module.results {
-                        let text = String(result.text.characters).trimmingCharacters(in: .whitespacesAndNewlines)
-                        guard let self else { return }
-                        if result.isFinal {
-                            if !text.isEmpty {
-                                self.finalizedText += self.finalizedText.isEmpty ? text : " " + text
+        for source in sources {
+            let module = SpeechTranscriber(locale: locale, preset: .progressiveTranscription)
+            do {
+                if let download = try await AssetInventory.assetInstallationRequest(supporting: [module]) {
+                    try await download.downloadAndInstall()
+                }
+                guard let format = await SpeechAnalyzer.bestAvailableAudioFormat(compatibleWith: [module]),
+                      session == generation else { return }
+                let (stream, continuation) = AsyncStream.makeStream(of: AnalyzerInput.self)
+                let analyzer = SpeechAnalyzer(modules: [module])
+                try await analyzer.start(inputSequence: stream)
+                guard session == generation else {
+                    continuation.finish()
+                    await analyzer.cancelAndFinishNow()
+                    return
+                }
+                sessions.append((analyzer, source.feed))
+                isListening = true
+                let speaker = source.speaker
+                resultsTasks.append(Task { [weak self] in
+                    do {
+                        for try await result in module.results {
+                            let text = String(result.text.characters).trimmingCharacters(in: .whitespacesAndNewlines)
+                            guard let self else { return }
+                            if result.isFinal {
+                                self.volatileText[speaker] = nil
+                                if !text.isEmpty { self.append(text, from: speaker) }
+                            } else {
+                                self.volatileText[speaker] = text
                             }
-                            self.volatileText = ""
-                        } else {
-                            self.volatileText = text
                         }
-                    }
-                } catch {}
+                    } catch {}
+                })
+                source.feed.connect(to: format, continuation: continuation)
+            } catch {
+                continue
             }
-            feed.connect(to: format, continuation: continuation)
-        } catch {
-            isListening = false
+        }
+    }
+
+    private func append(_ text: String, from speaker: Speaker?) {
+        if let last = lines.indices.last, lines[last].speaker == speaker {
+            lines[last].text += " " + text
+        } else {
+            lines.append(LiveLine(speaker: speaker, text: text))
         }
     }
 
     func stop() async {
         generation += 1
-        feed?.disconnect()
-        feed = nil
-        if let analyzer {
-            try? await analyzer.finalizeAndFinishThroughEndOfInput()
+        let finishing = sessions
+        sessions = []
+        for session in finishing {
+            session.feed.disconnect()
+            try? await session.analyzer.finalizeAndFinishThroughEndOfInput()
         }
-        analyzer = nil
-        resultsTask = nil
+        resultsTasks = []
         isListening = false
     }
 
     func reset() {
-        finalizedText = ""
-        volatileText = ""
+        lines = []
+        volatileText = [:]
     }
+}
+
+struct LiveLine: Identifiable {
+    let id = UUID()
+    let speaker: Speaker?
+    var text: String
 }
 
 /// Thread-safe bridge between realtime audio callbacks and the speech analyzer input stream.

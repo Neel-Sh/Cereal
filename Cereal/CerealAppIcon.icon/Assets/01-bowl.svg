@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>Top-down blue cereal bowl</title>
+  <circle cx="512" cy="550" r="306" fill="#2249A7"/>
+  <circle cx="512" cy="550" r="290" fill="#416BE0"/>
+  <circle cx="512" cy="550" r="260" fill="#1B429D"/>
+  <path d="M 269 392 A 290 290 0 0 1 731 359" fill="none" stroke="#84A2F4" stroke-width="10" stroke-linecap="round" opacity="0.65"/>
+  <path d="M 312 762 A 290 290 0 0 0 715 762" fill="none" stroke="#163887" stroke-width="12" stroke-linecap="round" opacity="0.45"/>
+</svg>

@@ -273,8 +273,7 @@
 				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Cereal/Info.plist;
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Cereal records your lectures using your microphone.";
-				INFOPLIST_KEY_NSScreenCaptureUsageDescription = "Cereal captures computer audio for online lectures when you choose that source.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Cereal records lectures and calls using your microphone.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -316,8 +315,7 @@
 				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Cereal/Info.plist;
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Cereal records your lectures using your microphone.";
-				INFOPLIST_KEY_NSScreenCaptureUsageDescription = "Cereal captures computer audio for online lectures when you choose that source.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Cereal records lectures and calls using your microphone.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
