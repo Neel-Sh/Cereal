@@ -9,7 +9,14 @@
   <a href="#get-started">Get started</a> ·
   <a href="#what-cereal-does">Features</a> ·
   <a href="#screenshots">Screenshots</a> ·
-  <a href="#privacy-and-storage">Privacy</a>
+  <a href="#privacy-and-storage">Privacy</a> ·
+  <a href="CONTRIBUTING.md">Contributing</a>
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-blue"></a>
+  <img alt="macOS" src="https://img.shields.io/badge/platform-macOS-black">
+  <a href="https://github.com/Neel-Sh/Cereal/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/Neel-Sh/Cereal?style=social"></a>
 </p>
 
 <p align="center">
@@ -33,6 +40,8 @@ Cereal records a lecture, class, interview, or meeting while you write your own 
 | **Make the material useful** | **Enhance** can create a summary, organized notes, source-linked to-dos, flashcards, and practice questions. The selected template guides the output. |
 | **Ask your notes** | Ask questions about one note, a course, or the whole library. Answers link to transcript passages you can play. |
 | **Find and share** | Search titles, notes, and transcripts; filter by course; pin important notes; copy or share notes; export Markdown or PDF with the transcript. |
+
+If Cereal is useful to you, a [star](https://github.com/Neel-Sh/Cereal/stargazers) helps other students find it.
 
 ## Screenshots
 
@@ -125,5 +134,6 @@ Generated summaries and answers can be imperfect. The recording and source links
 | <code>Cereal/Stores</code> | Local note library and call preferences/coordinator |
 | <code>Cereal/Models</code> | Notes, transcript passages, templates, study items, and action items |
 | <code>script/build_and_run.sh</code> | Build and launch the macOS app |
+| <code>docs/social-preview.png</code> | 1280×640 social preview composed from the screenshots above. GitHub does not set this from the repo. Upload it under Settings → General → Social preview. |
 
 The build script stops a running Cereal process, builds the Debug app with <code>xcodebuild</code>, and opens the new build. It also accepts <code>--verify</code>, <code>--debug</code>, <code>--logs</code>, and <code>--telemetry</code> for local development.
