@@ -1,24 +1,129 @@
 # Cereal
 
-A local-first macOS lecture recorder and study notebook. Record from the microphone or capture computer audio with your microphone for online lectures. Cereal saves audio locally and transcribes it on device after you stop.
+<p align="center">
+  <strong>Turn lectures and meetings into notes you can actually use.</strong><br>
+  A local-first recording and study notebook for macOS.
+</p>
 
-## Run
+<p align="center">
+  <a href="#get-started">Get started</a> ·
+  <a href="#what-cereal-does">Features</a> ·
+  <a href="#screenshots">Screenshots</a> ·
+  <a href="#privacy-and-storage">Privacy</a>
+</p>
 
-Open `Cereal.xcodeproj` in Xcode 27 or run:
+<p align="center">
+  <img src="docs/screenshots/enhanced-notes.png" alt="Cereal showing an enhanced lecture summary, source-linked to-dos, and the recording player" width="960">
+</p>
 
-```sh
-./script/build_and_run.sh
-```
+<p align="center"><em>One recording becomes a summary, organized notes, actionable to-dos, and study material.</em></p>
 
-The app targets macOS 27. Choose an audio source, add a course or topic, then use **Start Recording** and **Stop & Save**. **Computer audio** records your microphone and what the Mac is playing as separate tracks, so call transcripts label each passage **Me** or **Them**. It asks for macOS system-audio recording permission (not screen recording).
+Cereal records a lecture, class, interview, or meeting while you write your own notes. It transcribes the audio on your Mac, keeps the recording and transcript together, and can use Apple Intelligence to turn them into structured notes you can trace back to the source. There is no account or cloud backend in this project.
 
-Cereal lives in the menu bar and keeps running after you close its window. When another app such as Zoom, Teams, Meet in a browser, Slack, or FaceTime starts using the microphone, a small prompt offers to record the call with the Meeting template, named after the calendar event happening now. When the call ends, Cereal asks whether to stop and save, or stops automatically if you turn that on. Settings (⌘,) has call detection, auto-stop, launch at login, and the list of apps Cereal never asks about. The home button opens your saved lectures. In a lecture, play or seek the audio and use the **Transcript** inspector to jump to a timed passage. Older transcripts can be retranscribed from the inspector to add timestamps.
+> [!NOTE]
+> Cereal currently builds from source. It targets **macOS 27** and uses **Xcode 27**. Apple Intelligence is needed for enhanced notes and Ask; recording, transcription, playback, search, and export have their own availability requirements described below.
 
-Write your own notes while recording and open **Live** to follow an on-device live transcript. Microphone recordings can be paused and resumed. Pick a template (Lecture, Seminar, Lab, Study group, Office hours, Meeting, Interview) to shape how notes are enhanced, and connect your calendar to name a note after the class or meeting happening now.
+## What Cereal does
 
-After transcription, **Enhance** uses Apple Intelligence on device to write a summary, organized source-linked notes under headings, a checklist of to-dos and deadlines, and study material with flashcards and practice questions. Untitled notes get a title automatically. **Ask anything** (⌘J) opens a conversation with the current note, its course, or all notes, with suggested prompts and follow-up questions; answers link to their source passages. The home screen groups notes by date with pinned notes on top, and filters by course. Copy notes, share them, or export with the transcript to Markdown or PDF from the share menu.
+| Feature | What it gives you |
+| --- | --- |
+| **Record your way** | Capture a microphone alone, or record computer audio and your microphone as separate tracks for online classes and calls. Pause, resume, and watch a live waveform. |
+| **Follow along** | Open the **Live** panel for on-device transcription while recording. After saving, Cereal creates a timestamped transcript from the saved audio. |
+| **Keep your own notes** | Write and edit notes before, during, and after a recording. Add a course, topic, and template: Lecture, Seminar, Lab, Study group, Office hours, Meeting, or Interview. |
+| **Make the material useful** | **Enhance** can create a summary, organized notes, source-linked to-dos, flashcards, and practice questions. The selected template guides the output. |
+| **Ask your notes** | Ask questions about one note, a course, or the whole library. Answers link to transcript passages you can play. |
+| **Find and share** | Search titles, notes, and transcripts; filter by course; pin important notes; copy or share notes; export Markdown or PDF with the transcript. |
 
-Shortcuts: ⌘N new note, ⌘Space start/stop recording, ⌘⇧P pause or play, ⌘1–3 switch between My notes, Enhanced, and Study, ⌘E enhance, ⌘J ask, ⌘⇧C copy notes.
+## Screenshots
 
-Audio, drafts, and the lecture index are stored in the app's sandboxed Application Support folder under `Cereal/`. If a recording is interrupted, Cereal restores the draft notes and attempts to recover any finalized audio on the next launch. The first transcription may download Apple's on-device speech model. Enhanced notes and question answering require Apple Intelligence to be enabled and available on the Mac. Call recordings keep the microphone and computer-audio tracks next to the mixed recording so they can be retranscribed with speaker labels.
-# Cereal
+### Read the transcript beside your notes
+
+The transcript inspector stays next to your notes. Search within it, select a passage to jump in the recording, or use the source timestamps on enhanced notes and to-dos.
+
+<p align="center">
+  <img src="docs/screenshots/transcript.png" alt="Cereal enhanced notes on the left and a searchable timestamped transcript on the right" width="960">
+</p>
+
+### Find everything again
+
+The library groups notes by date, keeps pinned notes at the top, and lets you search across notes and transcripts or filter by course.
+
+<p align="center">
+  <img src="docs/screenshots/library.png" alt="Cereal All notes library with search, course filters, and a saved lecture" width="960">
+</p>
+
+## Get started
+
+1. Clone this repository and open <code>Cereal.xcodeproj</code> in Xcode 27, then run the **Cereal** scheme on a Mac running macOS 27. You can also build and launch it from Terminal:
+
+       git clone https://github.com/Neel-Sh/Cereal.git
+       cd Cereal
+       ./script/build_and_run.sh
+
+2. Create a note with **⌘N**. Give it a title, course, and topic if you like; choose a template and an audio source.
+3. Choose **Microphone** for an in-person session or **Computer audio** for an online class or call. Grant the requested macOS permissions.
+4. Select **Start Recording**. Write in **My notes** as you listen, and open **Live** to follow the live transcript.
+5. Select **Stop & Save**. Cereal saves the audio and notes, then transcribes the recording. Open the note to play it, inspect the transcript, and select **Enhance** when Apple Intelligence is available.
+
+The first transcription may need to download Apple's on-device speech assets. Transcription also requires a language supported by the Mac's speech model. If transcription is unavailable, the recording remains saved.
+
+### Permissions and requirements
+
+| Capability | What Cereal needs |
+| --- | --- |
+| Microphone recording | Access under **System Settings → Privacy & Security → Microphone**. |
+| Computer audio | **System Audio Recording Only** under **System Settings → Privacy & Security → Screen & System Audio Recording**. This audio-only capture does not record video. |
+| Calendar-based names | Optional calendar access. Connect your calendar from a new note to offer the current event title. |
+| Enhanced notes and Ask | Apple Intelligence enabled and available on the Mac, plus a completed timestamped transcript. |
+| Open at login | Optional setting; macOS may also require approval in **System Settings → General → Login Items**. |
+
+## Calls and the menu bar
+
+Cereal stays in the menu bar after its window closes. You can start a microphone or computer-audio recording there, pause or save an active recording, reopen the window, and open Settings.
+
+With **Offer to record when a call starts** enabled, Cereal watches for another app using the microphone and offers to record. This can include Zoom, FaceTime, Teams, Slack, or a call in a browser. A call recording uses the **Meeting** template and, when calendar access is available, can use the current event's title. Choose **Record** to start; Cereal does not start recording a detected call without that choice. When the call ends, it offers to stop and save. You can opt into automatic stop in Settings, and exclude apps from future prompts with **Don't ask for…**.
+
+Computer-audio recordings retain a mixed file for playback and separate microphone and system-audio tracks. Cereal transcribes those tracks as **Me** and **Them**; speaker labeling depends on the quality of each source. Headphones can help keep the other side of a call out of your microphone track.
+
+## From recording to study material
+
+1. **Capture:** Cereal saves the recording and your draft notes in its sandboxed Application Support folder. If an interruption leaves a recoverable recording, Cereal attempts to restore it on the next launch.
+2. **Transcribe:** Apple's on-device speech tools produce timed passages after saving. Use **Retranscribe** from a note's **•••** menu to try again or add timestamps to an older note.
+3. **Enhance:** Apple Intelligence uses the transcript and your notes to make a summary, organized points, to-dos, and study cards and questions. A generated title can replace a default title. Edit the result and use its timestamps to inspect the original passage.
+4. **Review:** Play or seek the audio, mark to-dos complete, search the transcript, ask follow-up questions, and export the note as Markdown or PDF.
+
+Generated summaries and answers can be imperfect. The recording and source links are there so you can check what was actually said.
+
+## Keyboard shortcuts
+
+| Shortcut | Action |
+| --- | --- |
+| **⌘N** | New note |
+| **⌘Space** | Start recording, or stop and save |
+| **⌘⇧P** | Pause or resume a recording; play or pause a saved recording |
+| **⌘⇧T** | Show or hide the live transcript while recording |
+| **⌘1 / ⌘2 / ⌘3** | My notes / Enhanced / Study |
+| **⌘E** | Enhance the current note |
+| **⌘J** | Ask about the current note |
+| **⌘⇧C** | Copy notes |
+| **⌘,** | Settings |
+
+## Privacy and storage
+
+- Audio, notes, transcripts, and the lecture index live under <code>Cereal/</code> in the app's sandboxed **Application Support** directory. Call recordings retain the separate audio tracks alongside the mixed recording.
+- Speech transcription and Apple Intelligence generation run on device. The app has no sign-in, sync service, or API key. Apple's speech assets may download the first time they are needed.
+- Calendar access is optional. Cereal uses it to find an event happening now for a suggested note title.
+- Ask conversations are kept in memory for the current app session; saved notes and recordings remain in the local library.
+- Deleting a note from the library removes its indexed note and associated recording files. Export anything you want to keep first.
+
+## Project layout
+
+| Path | Purpose |
+| --- | --- |
+| <code>Cereal/App</code> and <code>Cereal/Views</code> | App scenes, recorder, library, note detail, transcript, Ask, menu bar, and settings UI |
+| <code>Cereal/Services</code> | Audio capture, playback, speech transcription, Apple Intelligence, calendar, and exports |
+| <code>Cereal/Stores</code> | Local note library and call preferences/coordinator |
+| <code>Cereal/Models</code> | Notes, transcript passages, templates, study items, and action items |
+| <code>script/build_and_run.sh</code> | Build and launch the macOS app |
+
+The build script stops a running Cereal process, builds the Debug app with <code>xcodebuild</code>, and opens the new build. It also accepts <code>--verify</code>, <code>--debug</code>, <code>--logs</code>, and <code>--telemetry</code> for local development.
