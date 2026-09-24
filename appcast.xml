@@ -3,6 +3,18 @@
     <channel>
         <title>Cereal</title>
         <item>
+            <title>1.0.2</title>
+            <pubDate>Wed, 23 Sep 2026 19:19:40 -0700</pubDate>
+            <sparkle:version>3</sparkle:version>
+            <sparkle:shortVersionString>1.0.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>27.0</sparkle:minimumSystemVersion>
+            <description sparkle:format="markdown"><![CDATA[# Cereal 1.0.2
+
+The update notice is now a compact Liquid Glass pill in the bottom-left corner. It no longer stretches across the top of your notes, and it stays out of the way while you record. Select the pill to install the available update.
+]]></description>
+            <enclosure url="https://github.com/Neel-Sh/Cereal/releases/download/v1.0.2/Cereal.dmg" length="3716913" type="application/octet-stream" sparkle:edSignature="/fa/a58mis01L+HjAMh6IgEm1P90O576mgoqGSqOt7xrTHLCcAjMNb050+OtfOWhNFyjcT4EUpF0RkfDQPbpDA=="/>
+        </item>
+        <item>
             <title>1.0.1</title>
             <pubDate>Wed, 23 Sep 2026 18:30:13 -0700</pubDate>
             <sparkle:version>2</sparkle:version>

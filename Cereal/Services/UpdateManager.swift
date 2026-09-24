@@ -14,6 +14,12 @@ final class UpdateManager: NSObject, ObservableObject, SPUStandardUserDriverDele
             updaterDelegate: nil,
             userDriverDelegate: self
         )
+        #if DEBUG
+        if let previewVersion = DebugSnapshot.environment["CEREAL_UPDATE_PREVIEW_VERSION"],
+           !previewVersion.isEmpty {
+            availableVersion = previewVersion
+        }
+        #endif
     }
 
     var automaticallyChecksForUpdates: Bool {

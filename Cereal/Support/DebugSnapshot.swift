@@ -5,7 +5,8 @@ import SwiftUI
 
 /// Development-only launch hooks for capturing UI states without clicking through the app.
 /// CEREAL_STORAGE_ROOT points storage at a scratch folder, CEREAL_SCENE picks the starting screen,
-/// and CEREAL_SNAPSHOT writes a PNG of the main window a few seconds after launch, then quits.
+/// CEREAL_UPDATE_PREVIEW_VERSION shows the update pill, and CEREAL_SNAPSHOT writes a PNG
+/// of the main window a few seconds after launch, then quits.
 enum DebugSnapshot {
     static let environment = ProcessInfo.processInfo.environment
     static var storageRoot: URL? { environment["CEREAL_STORAGE_ROOT"].map { URL(fileURLWithPath: $0, isDirectory: true) } }

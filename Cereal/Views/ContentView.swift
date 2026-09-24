@@ -76,26 +76,35 @@ struct ContentView: View {
                 }
             }
         }
-        .safeAreaInset(edge: .top, spacing: 0) {
-            if let version = updates.availableVersion {
-                HStack(spacing: 12) {
-                    Image(systemName: "arrow.down.circle.fill")
-                        .foregroundStyle(.tint)
-                    Text("Cereal \(version) is available")
-                        .font(.subheadline.weight(.medium))
-                    Spacer(minLength: 12)
-                    Button("Update") { updates.installAvailableUpdate() }
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.small)
-                        .disabled(library.isRecording || library.isStarting || library.isStopping)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if let version = updates.availableVersion,
+               !library.isRecording && !library.isStarting && !library.isStopping &&
+               !library.isRecovering && !library.canRetrySaving {
+                HStack {
+                    Button {
+                        updates.installAvailableUpdate()
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "arrow.down.circle.fill")
+                                .font(.system(size: 15))
+                                .foregroundStyle(.tint)
+                            Text("Update available")
+                                .font(.system(size: 13, weight: .semibold))
+                        }
+                        .padding(.horizontal, 16)
+                        .frame(height: 42)
+                        .contentShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .glassEffect(.regular.interactive(), in: .capsule)
+                    .accessibilityLabel("Update available. Install Cereal \(version)")
+                    .help("Install Cereal \(version)")
+                    Spacer(minLength: 0)
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 10)
-                .glassEffect(.regular, in: .rect(cornerRadius: 16))
-                .padding(.horizontal, 18)
-                .padding(.top, 8)
-                .padding(.bottom, 6)
-                .accessibilityElement(children: .contain)
+                .padding(.leading, 20)
+                .padding(.trailing, 20)
+                .padding(.top, 6)
+                .padding(.bottom, 14)
             }
         }
         .toolbarBackgroundVisibility(.hidden, for: .windowToolbar)

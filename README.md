@@ -38,7 +38,7 @@ Cereal records a lecture, class, interview, or meeting while you write your own 
 
 Use the **Download Cereal** button above to get the latest DMG directly. Open it, drag **Cereal** into **Applications** as shown in the installer window, then launch it from Applications. You can also browse [all releases](https://github.com/Neel-Sh/Cereal/releases).
 
-Cereal checks for updates automatically and shows a glass banner when a new version is available. You can also choose **Check for Updates…** from the Cereal menu or Settings. Update downloads are verified with Sparkle's signature key.
+Cereal checks for updates automatically and shows a small glass pill when a new version is available. You can also choose **Check for Updates…** from the Cereal menu or Settings. Update downloads are verified with Sparkle's signature key.
 
 ## What Cereal does
 
