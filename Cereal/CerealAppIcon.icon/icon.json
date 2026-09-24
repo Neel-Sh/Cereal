@@ -1,74 +1,46 @@
 {
-  "fill-specializations" : [
+  "fill": "system-light",
+  "groups": [
     {
-      "value" : {
-        "solid" : "srgb:1.00000,1.00000,1.00000,1.00000"
-      }
-    },
-    {
-      "appearance" : "dark",
-      "value" : {
-        "solid" : "display-p3:0.07797,0.07797,0.07797,1.00000"
+      "name": "C and waveform",
+      "layers": [
+        {
+          "name": "Waveform",
+          "image-name": "02-waveform.svg",
+          "fill-specializations": [
+            {
+              "appearance": "dark",
+              "value": {
+                "solid": "srgb:0.96000,0.96000,0.97000,1.00000"
+              }
+            }
+          ]
+        },
+        {
+          "name": "C mark",
+          "image-name": "01-c-mark.svg",
+          "fill-specializations": [
+            {
+              "appearance": "dark",
+              "value": {
+                "solid": "srgb:0.96000,0.96000,0.97000,1.00000"
+              }
+            }
+          ]
+        }
+      ],
+      "shadow": {
+        "kind": "none",
+        "opacity": 0
+      },
+      "specular": false,
+      "translucency": {
+        "enabled": false,
+        "value": 0
       }
     }
   ],
-  "groups" : [
-    {
-      "layers" : [
-        {
-          "image-name" : "03-cereal.svg",
-          "name" : "Cereal"
-        }
-      ],
-      "name" : "Cereal",
-      "shadow" : {
-        "kind" : "neutral",
-        "opacity" : 0.25
-      },
-      "specular" : true,
-      "translucency" : {
-        "enabled" : false,
-        "value" : 0
-      }
-    },
-    {
-      "layers" : [
-        {
-          "image-name" : "02-milk.svg",
-          "name" : "Milk"
-        }
-      ],
-      "name" : "Milk",
-      "shadow" : {
-        "kind" : "none",
-        "opacity" : 0.5
-      },
-      "specular" : true,
-      "translucency" : {
-        "enabled" : false,
-        "value" : 0
-      }
-    },
-    {
-      "layers" : [
-        {
-          "image-name" : "01-bowl.svg",
-          "name" : "Bowl"
-        }
-      ],
-      "name" : "Bowl",
-      "shadow" : {
-        "kind" : "neutral",
-        "opacity" : 0.35
-      },
-      "specular" : true,
-      "translucency" : {
-        "enabled" : true,
-        "value" : 0.1
-      }
-    }
-  ],
-  "supported-platforms" : {
-    "squares" : "shared"
+  "supported-platforms": {
+    "squares": "shared"
   }
 }

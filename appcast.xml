@@ -3,6 +3,20 @@
     <channel>
         <title>Cereal</title>
         <item>
+            <title>1.0.1</title>
+            <pubDate>Wed, 23 Sep 2026 18:30:13 -0700</pubDate>
+            <sparkle:version>2</sparkle:version>
+            <sparkle:shortVersionString>1.0.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>27.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/Neel-Sh/Cereal/releases/download/v1.0.1/Cereal.dmg" length="3716202" type="application/octet-stream" sparkle:edSignature="oe0if0hw0WI58aiNuBepPn5f19azJdGYbz1Zi9eavtfUprehnUzllRUsqw2Zy4XF+zUubK2tyzSBfLXAbFGfCw=="/>
+            <description sparkle:format="markdown"><![CDATA[Cereal 1.0.1 refreshes the app icon and makes installation clearer. The DMG now opens with a branded drag-to-Applications guide, and the repository has a prominent direct download button.
+
+The app remains Developer ID signed and Apple notarized. Existing Cereal installations receive this release through Sparkle.
+
+Requires macOS 27.
+]]></description>
+        </item>
+        <item>
             <title>1.0.0</title>
             <pubDate>Wed, 23 Sep 2026 18:12:18 -0700</pubDate>
             <sparkle:version>1</sparkle:version>

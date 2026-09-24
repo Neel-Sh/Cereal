@@ -11,7 +11,7 @@ EXPORT_OPTIONS="$WORK_DIR/ExportOptions.plist"
 NOTARIZED_APP=""
 STAGING="$WORK_DIR/dmg"
 UPDATES="$WORK_DIR/updates"
-DMG="$ROOT_DIR/dist/Cereal-$VERSION.dmg"
+DMG="$ROOT_DIR/dist/Cereal.dmg"
 SPARKLE_KEY_FILE="$WORK_DIR/sparkle.private"
 SIGNING_IDENTITY="Developer ID Application: Neel Sharma (Q672YJ8657)"
 
@@ -21,6 +21,10 @@ cleanup() {
 trap cleanup EXIT
 
 mkdir -p "$ROOT_DIR/dist" "$STAGING" "$UPDATES"
+if ! command -v create-dmg >/dev/null 2>&1; then
+    echo "create-dmg is required. Install it with: brew install create-dmg" >&2
+    exit 1
+fi
 
 xcodebuild -project "$ROOT_DIR/Cereal.xcodeproj" -scheme Cereal \
     -configuration Release -destination 'generic/platform=macOS' \
@@ -65,9 +69,20 @@ done
 codesign --verify --deep --strict --verbose=2 "$NOTARIZED_APP"
 spctl -a -vv -t execute "$NOTARIZED_APP"
 /usr/bin/ditto "$NOTARIZED_APP" "$STAGING/Cereal.app"
-ln -s /Applications "$STAGING/Applications"
-hdiutil create -volname Cereal -srcfolder "$STAGING" -ov -format UDZO \
-    -fs HFS+ "$DMG"
+create-dmg \
+    --volname "Install Cereal" \
+    --volicon "$NOTARIZED_APP/Contents/Resources/CerealAppIcon.icns" \
+    --background "$ROOT_DIR/docs/dmg/installer-background.png" \
+    --window-pos 160 120 \
+    --window-size 720 480 \
+    --icon-size 104 \
+    --text-size 14 \
+    --icon Cereal.app 199 245 \
+    --hide-extension Cereal.app \
+    --app-drop-link 521 245 \
+    --no-internet-enable \
+    --overwrite \
+    "$DMG" "$STAGING"
 codesign --force --sign "$SIGNING_IDENTITY" --timestamp "$DMG"
 
 # Optional: submit and staple the disk image itself when a notarytool profile exists.
@@ -86,14 +101,14 @@ if [[ -z "$SPARKLE_BIN" || -z "$GENERATE_KEYS" ]]; then
     exit 1
 fi
 
-cp "$DMG" "$UPDATES/"
+cp "$DMG" "$UPDATES/Cereal.dmg"
 if [[ -f "$ROOT_DIR/appcast.xml" ]]; then cp "$ROOT_DIR/appcast.xml" "$UPDATES/appcast.xml"; fi
-if [[ -n "$NOTES_FILE" ]]; then cp "$NOTES_FILE" "$UPDATES/Cereal-$VERSION.md"; fi
+if [[ -n "$NOTES_FILE" ]]; then cp "$NOTES_FILE" "$UPDATES/Cereal.md"; fi
 umask 077
 "$GENERATE_KEYS" --account cereal -x "$SPARKLE_KEY_FILE"
 "$SPARKLE_BIN" --ed-key-file "$SPARKLE_KEY_FILE" \
     --download-url-prefix "https://github.com/Neel-Sh/Cereal/releases/download/v$VERSION/" \
-    --maximum-deltas 0 --embed-release-notes "$UPDATES"
+    --maximum-deltas 0 --embed-release-notes --versions "$BUILD_NUMBER" "$UPDATES"
 cp "$UPDATES/appcast.xml" "$ROOT_DIR/appcast.xml"
 
 echo "Prepared $DMG and $ROOT_DIR/appcast.xml"

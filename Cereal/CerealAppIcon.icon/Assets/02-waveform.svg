@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>Five-bar audio waveform</title>
+  <g fill="#1D1D1F">
+    <rect x="368" y="461" width="42" height="102" rx="21"/>
+    <rect x="438" y="420" width="42" height="184" rx="21"/>
+    <rect x="508" y="377" width="42" height="270" rx="21"/>
+    <rect x="578" y="420" width="42" height="184" rx="21"/>
+    <rect x="648" y="461" width="42" height="102" rx="21"/>
+  </g>
+</svg>
