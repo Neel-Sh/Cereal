@@ -6,11 +6,10 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Neel-Sh/Cereal/releases/latest/download/Cereal.dmg"><img src="docs/download-button.svg" alt="Download Cereal for macOS 27" width="420"></a>
+  <a href="https://github.com/Neel-Sh/Cereal/releases/latest/download/Cereal.dmg"><img src="docs/download-button.svg" alt="Download Cereal for Mac" width="400"></a>
 </p>
 
 <p align="center">
-  <a href="#download">Download</a> ·
   <a href="#get-started">Get started</a> ·
   <a href="#what-cereal-does">Features</a> ·
   <a href="#screenshots">Screenshots</a> ·
