@@ -3,6 +3,7 @@ import SwiftUI
 struct MenuBarContent: View {
     let library: LectureLibrary
     let calls: CallCoordinator
+    @ObservedObject var updates: UpdateManager
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
@@ -24,6 +25,15 @@ struct MenuBarContent: View {
         }
         Divider()
         Button("Open Cereal") { showWindow() }
+        if let version = updates.availableVersion {
+            Button("Update Cereal to \(version)", systemImage: "arrow.down.circle") {
+                updates.installAvailableUpdate()
+            }
+            .disabled(library.isRecording || library.isStarting || library.isStopping)
+        } else {
+            Button("Check for Updates…") { updates.checkForUpdates() }
+                .disabled(library.isRecording || library.isStarting || library.isStopping)
+        }
         @Bindable var settings = calls.settings
         Toggle("Detect Calls", isOn: $settings.detectsCalls)
         SettingsLink { Text("Settings…") }
@@ -49,6 +59,7 @@ struct MenuBarContent: View {
 struct MenuBarLabel: View {
     let library: LectureLibrary
     let calls: CallCoordinator
+    @ObservedObject var updates: UpdateManager
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
@@ -60,7 +71,7 @@ struct MenuBarLabel: View {
                         .monospacedDigit()
                 }
             } else {
-                Image(systemName: "waveform")
+                Image(systemName: updates.availableVersion == nil ? "waveform" : "arrow.down.circle")
             }
         }
         .task { calls.openMainWindow = { openWindow(id: "main") } }
@@ -69,12 +80,21 @@ struct MenuBarLabel: View {
 
 struct CerealSettingsView: View {
     let calls: CallCoordinator
+    let updates: UpdateManager
     @State private var launchError: String?
 
     private var settings: CallSettings { calls.settings }
 
     var body: some View {
         Form {
+            Section("Updates") {
+                Toggle("Check for updates automatically", isOn: Binding(
+                    get: { updates.automaticallyChecksForUpdates },
+                    set: { updates.automaticallyChecksForUpdates = $0 }
+                ))
+                Button("Check for Updates…") { updates.checkForUpdates() }
+            }
+
             Section {
                 Toggle("Open Cereal at login", isOn: Binding(
                     get: { settings.launchesAtLogin },

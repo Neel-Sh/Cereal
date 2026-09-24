@@ -6,6 +6,7 @@
 </p>
 
 <p align="center">
+  <a href="#download">Download</a> ·
   <a href="#get-started">Get started</a> ·
   <a href="#what-cereal-does">Features</a> ·
   <a href="#screenshots">Screenshots</a> ·
@@ -28,7 +29,11 @@
 Cereal records a lecture, class, interview, or meeting while you write your own notes. It transcribes the audio on your Mac, keeps the recording and transcript together, and can use Apple Intelligence to turn them into structured notes you can trace back to the source. There is no account or cloud backend in this project.
 
 > [!NOTE]
-> Cereal currently builds from source. It targets **macOS 27** and uses **Xcode 27**. Apple Intelligence is needed for enhanced notes and Ask; recording, transcription, playback, search, and export have their own availability requirements described below.
+> Cereal targets **macOS 27**. Apple Intelligence is needed for enhanced notes and Ask; recording, transcription, playback, search, and export have their own availability requirements described below.
+
+## Download
+
+Download the signed, notarized app from [GitHub Releases](https://github.com/Neel-Sh/Cereal/releases/latest). Open the DMG and drag **Cereal** into **Applications**. Cereal checks for updates automatically and shows a glass banner when a new version is available. You can also choose **Check for Updates…** from the Cereal menu or Settings. Update downloads are verified with Sparkle's signature key.
 
 ## What Cereal does
 
@@ -134,6 +139,7 @@ Generated summaries and answers can be imperfect. The recording and source links
 | <code>Cereal/Stores</code> | Local note library and call preferences/coordinator |
 | <code>Cereal/Models</code> | Notes, transcript passages, templates, study items, and action items |
 | <code>script/build_and_run.sh</code> | Build and launch the macOS app |
+| <code>script/make_release.sh</code> and <code>RELEASES.md</code> | Create a notarized app, signed DMG, and Sparkle feed |
 | <code>docs/social-preview.png</code> | 1280×640 social preview composed from the screenshots above. GitHub does not set this from the repo. Upload it under Settings → General → Social preview. |
 
 The build script stops a running Cereal process, builds the Debug app with <code>xcodebuild</code>, and opens the new build. It also accepts <code>--verify</code>, <code>--debug</code>, <code>--logs</code>, and <code>--telemetry</code> for local development.

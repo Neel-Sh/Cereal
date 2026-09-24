@@ -26,5 +26,17 @@
     <string>Cereal names new notes after the class or meeting happening on your calendar.</string>
     <key>NSAudioCaptureUsageDescription</key>
     <string>Cereal records the other side of calls and online lectures from your computer’s audio.</string>
+    <key>SUFeedURL</key>
+    <string>https://raw.githubusercontent.com/Neel-Sh/Cereal/main/appcast.xml</string>
+    <key>SUPublicEDKey</key>
+    <string>xXPF7TwIKevnTg7F6HtYJMILz3LpCzAsysZTiXPSA0s=</string>
+    <key>SUEnableAutomaticChecks</key>
+    <true/>
+    <key>SUScheduledCheckInterval</key>
+    <integer>86400</integer>
+    <key>SUEnableInstallerLauncherService</key>
+    <true/>
+    <key>SUEnableDownloaderService</key>
+    <true/>
 </dict>
 </plist>

@@ -13,6 +13,7 @@ enum SidePanel: String, CaseIterable, Identifiable {
 
 struct ContentView: View {
     @Bindable var library: LectureLibrary
+    @ObservedObject var updates: UpdateManager
     @State private var showingLibrary = false
     @State private var sidePanel: SidePanel?
     @State private var showingChat = false
@@ -73,6 +74,28 @@ struct ContentView: View {
                         .disabled(library.isRecording || library.lectures.isEmpty)
                     }
                 }
+            }
+        }
+        .safeAreaInset(edge: .top, spacing: 0) {
+            if let version = updates.availableVersion {
+                HStack(spacing: 12) {
+                    Image(systemName: "arrow.down.circle.fill")
+                        .foregroundStyle(.tint)
+                    Text("Cereal \(version) is available")
+                        .font(.subheadline.weight(.medium))
+                    Spacer(minLength: 12)
+                    Button("Update") { updates.installAvailableUpdate() }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.small)
+                        .disabled(library.isRecording || library.isStarting || library.isStopping)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .glassEffect(.regular, in: .rect(cornerRadius: 16))
+                .padding(.horizontal, 18)
+                .padding(.top, 8)
+                .padding(.bottom, 6)
+                .accessibilityElement(children: .contain)
             }
         }
         .toolbarBackgroundVisibility(.hidden, for: .windowToolbar)

@@ -1,0 +1,20 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>Cereal</title>
+        <item>
+            <title>1.0.0</title>
+            <pubDate>Wed, 23 Sep 2026 18:12:18 -0700</pubDate>
+            <sparkle:version>1</sparkle:version>
+            <sparkle:shortVersionString>1.0.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>27.0</sparkle:minimumSystemVersion>
+            <description sparkle:format="markdown"><![CDATA[Cereal 1.0 is the first downloadable macOS release. Record lectures and meetings, keep your notes and audio together, transcribe on device, and use Apple Intelligence to organize and explore what you captured.
+
+This release is Developer ID signed and Apple notarized. Cereal now checks for updates automatically and shows an update notice at the top of the app when a new version is ready.
+
+Requires macOS 27.
+]]></description>
+            <enclosure url="https://github.com/Neel-Sh/Cereal/releases/download/v1.0.0/Cereal-1.0.0.dmg" length="3173892" type="application/octet-stream" sparkle:edSignature="+8wFNFNVlMS3dnYm0hV+HbKpWGMeTsVyT8SxZ+lVJ0CccVtCT8nccXRyZPOupKUFuCbm6reWPXVPhtY5Ku5VCw=="/>
+        </item>
+    </channel>
+</rss>
